@@ -2,7 +2,8 @@ from flask import Flask, request, jsonify, g
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from database import create_connection, check_db_exists
+# Assuming these files are present in your backend directory
+from database import create_connection 
 from scoring import calculate_health_score
 import sqlite3
 
@@ -19,9 +20,9 @@ app = Flask(__name__)
 # 🔑 SECURITY: Restrict CORS to only allow requests from the defined FRONTEND_URL
 CORS(app, resources={r"/api/*": {"origins": FRONTEND_URL}}) 
 
-# 🔑 SECURITY: Rate Limiter Configuration (Uses IP address to track requests)
+# 🔑 FIX & SECURITY: Rate Limiter Configuration (Explicitly passing 'app=app' for modern Flask-Limiter versions)
 limiter = Limiter(
-    app,
+    app=app,  # <-- FIX: Explicitly use the 'app' keyword argument to resolve TypeError
     key_func=get_remote_address,
     default_limits=["200 per day", "50 per hour"] # Global default limits
 )
@@ -33,6 +34,9 @@ def get_db_connection():
     conn = create_connection()
     conn.row_factory = sqlite3.Row 
     return conn
+
+# Assuming check_db_exists is defined in database.py
+from database import check_db_exists 
 
 @app.teardown_appcontext
 def close_connection(exception):
@@ -171,4 +175,5 @@ if __name__ == '__main__':
         check_db_exists()
 
     print("\n--- Starting Health Scanner API ---")
+    # Note: Render uses Gunicorn to run the app, so this block is primarily for local testing.
     app.run(debug=True)
