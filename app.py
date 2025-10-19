@@ -12,7 +12,7 @@ import sqlite3
 FRONTEND_URL = [
     "http://127.0.0.1:5000",        # For local testing
     "http://localhost:5000",        # For local testing
-    "https://YOUR-NETLIFY-APP-NAME.netlify.app" # 🔑 REPLACE THIS
+    "https://healthscannersa.netlify.app/" # 🔑 REPLACE THIS
 ] 
 
 # --- Flask App Initialization ---
