@@ -226,6 +226,8 @@ def load_sample_data(conn):
 
 def get_product_by_barcode(conn, barcode):
     """Retrieve a product by its barcode."""
+    # 🔑 FIX: Set row_factory to access columns by name for this specific function
+    conn.row_factory = sqlite3.Row
     sql = "SELECT * FROM products WHERE barcode=?"
     try:
         c = conn.cursor()
@@ -234,25 +236,28 @@ def get_product_by_barcode(conn, barcode):
         if row:
             # Map the database row to a dictionary for easier API consumption
             return {
-                "barcode": row[BARCODE],
-                "name": row[NAME],
-                "brand": row[BRAND],
-                "category": row[CATEGORY],
+                "barcode": row["barcode"],
+                "name": row["name"],
+                "brand": row["brand"],
+                "category": row["category"],
                 "nutrition_per_100g": {
-                    "sugar": row[SUGAR],
-                    "salt": row[SALT],
-                    "fat": row[FAT],
-                    "saturated_fat": row[SAT_FAT],
-                    "protein": row[PROTEIN],
-                    "fiber": row[FIBER],
-                    "calories": row[CALORIES],
+                    "sugar": row["sugar"],
+                    "salt": row["salt"],
+                    "fat": row["fat"],
+                    "saturated_fat": row["saturated_fat"],
+                    "protein": row["protein"],
+                    "fiber": row["fiber"],
+                    "calories": row["calories"],
                 },
-                "additives_raw": row[ADDITIVES] # Raw string (e.g., "E621,E631")
+                "additives_raw": row["additives"] # Raw string (e.g., "E621,E631")
             }
         return None
     except sqlite3.Error as e:
         print(f"Database error during lookup: {e}")
         return None
+    finally:
+        # 🔑 FIX: Reset row_factory to avoid side-effects
+        conn.row_factory = None
 
 def initialize_database():
     """Connects to or creates the DB, and ensures tables and data are loaded."""
